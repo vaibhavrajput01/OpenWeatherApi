@@ -1,0 +1,1 @@
+The workflow handles GitHub API rate limits by using a scheduled trigger that runs once every hour, reducing excessive API calls. Additionally, the number of stargazers fetched is limited using the per_page parameter to avoid hitting rate limits. This ensures efficient and controlled API usage.
