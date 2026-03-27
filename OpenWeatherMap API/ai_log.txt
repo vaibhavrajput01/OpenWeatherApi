@@ -1,0 +1,17 @@
+AI LOG
+
+1. Prompt:
+"How to perform parallel API calls in JavaScript using Promise.all?"
+
+Use:
+Used this to implement concurrent weather API requests for all cities instead of sequential execution, improving performance.
+
+---
+
+2. Prompt:
+"How to handle API errors using try-catch in async functions in Node.js?"
+
+Use:
+Used this to handle errors such as invalid city inputs (e.g., InvalidCity123) without crashing the program, ensuring smooth execution for other valid requests.
+
+---

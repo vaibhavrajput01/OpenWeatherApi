@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Weather Order Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: linear-gradient(to right, #eef2f3, #dfe9f3);
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    button {
+      display: block;
+      margin: 20px auto;
+      padding: 12px 25px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      background: #4CAF50;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #45a049;
+    }
+
+    #orders {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 15px;
+    }
+
+    .card {
+      background: white;
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      transition: transform 0.2s;
+    }
+
+    .card:hover {
+      transform: scale(1.03);
+    }
+
+    .delayed {
+      border-left: 6px solid red;
+    }
+
+    .ok {
+      border-left: 6px solid green;
+    }
+
+    .message {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #444;
+      background: #f9f9f9;
+      padding: 8px;
+      border-radius: 6px;
+    }
+
+    .loading {
+      text-align: center;
+      font-size: 18px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>🌦 Weather Order Dashboard</h1>
+<button onclick="processOrders()">Run Weather Check</button>
+<div class="loading" id="loading"></div>
+<div id="orders"></div>
+
+<script>
+const API_KEY = "7f746e88bba285a6be50cc4817acd939"; // Replace with your actual API key
+
+const orders = [
+  { order_id: "1001", customer: "Alice Smith", city: "New York", status: "Pending" },
+  { order_id: "1002", customer: "Bob Jones", city: "Mumbai", status: "Pending" },
+  { order_id: "1003", customer: "Charlie Green", city: "London", status: "Pending" },
+  { order_id: "1004", customer: "Test User", city: "InvalidCity123", status: "Pending" }
+];
+
+function generateApology(customer, city, weather) {
+  return `Hi ${customer}, your order to ${city} is delayed due to ${weather}. We appreciate your patience!`;
+}
+
+function render() {
+  const container = document.getElementById("orders");
+  container.innerHTML = "";
+
+  orders.forEach(o => {
+    const div = document.createElement("div");
+    div.className = `card ${o.status === 'Delayed' ? 'delayed' : 'ok'}`;
+
+    div.innerHTML = `
+      <h3>📦 Order ${o.order_id}</h3>
+      <p><b>Customer:</b> ${o.customer}</p>
+      <p><b>City:</b> ${o.city}</p>
+      <p><b>Status:</b> ${o.status}</p>
+      ${o.message ? `<div class="message">📢 ${o.message}</div>` : ""}
+    `;
+
+    container.appendChild(div);
+  });
+}
+
+async function fetchWeather(city) {
+  try {
+    const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}`;
+    const res = await axios.get(url);
+    return res.data.weather[0].main;
+  } catch {
+    return null;
+  }
+}
+
+async function processOrders() {
+  document.getElementById("loading").innerText = "⏳ Fetching weather data...";
+
+  await Promise.all(orders.map(async o => {
+    const weather = await fetchWeather(o.city);
+
+    if (!weather) {
+      o.message = "Invalid city or API error";
+      return;
+    }
+
+    if (["Rain","Snow","Extreme","Clouds"].includes(weather)) {
+      o.status = "Delayed";
+      o.message = generateApology(o.customer, o.city, weather);
+    } else {
+      o.status = "On Time";
+      o.message = `Weather is ${weather}. Delivery is on schedule.`;
+    }
+  }));
+
+  document.getElementById("loading").innerText = "";
+  render();
+}
+
+render();
+</script>
+
+</body>
+</html>
